@@ -1,0 +1,28 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ "master" ]   # o main/btrf-main come preferisci
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake libtool pkg-config build-essential \
+              libevent-dev libboost-dev libboost-system-dev libboost-filesystem-dev \
+              libboost-chrono-dev libboost-test-dev libboost-thread-dev libminiupnpc-dev \
+              libzmq3-dev libssl-dev python3
+
+      - name: Build & test
+        run: |
+          ./autogen.sh
+          ./configure --with-incompatible-bdb
+          make -j$(nproc)
+          make check
